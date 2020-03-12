@@ -18,6 +18,7 @@ import {
   FindPRConfig,
   EnsureCommentConfig,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 import { configFileNames } from '../../config/app-strings';
 import { logger } from '../../logger';
@@ -940,12 +941,12 @@ export async function ensureComment({
   return true;
 }
 
-export async function ensureCommentRemoval(
-  issueNo: number,
-  topic: string
-): Promise<void> {
-  logger.debug(`Ensuring comment "${topic}" in #${issueNo} is removed`);
-  const comments = await getComments(issueNo);
+export async function ensureCommentRemoval({
+  number,
+  topic,
+}: EnsureCommentRemovalConfig): Promise<void> {
+  logger.debug(`Ensuring comment "${topic}" in #${number} is removed`);
+  const comments = await getComments(number);
   let commentId: number;
   comments.forEach((comment: { body: string; id: number }) => {
     if (comment.body.startsWith(`### ${topic}\n\n`)) {
@@ -953,7 +954,7 @@ export async function ensureCommentRemoval(
     }
   });
   if (commentId) {
-    await deleteComment(issueNo, commentId);
+    await deleteComment(number, commentId);
   }
 }
 

@@ -15,6 +15,7 @@ import {
   RepoParams,
   VulnerabilityAlert,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 import { api } from './gitea-got-wrapper';
 import { PLATFORM_TYPE_GITEA } from '../../constants/platforms';
@@ -793,8 +794,11 @@ const platform: Platform = {
     }
   },
 
-  async ensureCommentRemoval(issue: number, topic: string): Promise<void> {
-    const commentList = await helper.getComments(config.repository, issue);
+  async ensureCommentRemoval({
+    number,
+    topic,
+  }: EnsureCommentRemovalConfig): Promise<void> {
+    const commentList = await helper.getComments(config.repository, number);
     const comment = findCommentByTopic(commentList, topic);
 
     // Abort and do nothing if no matching comment was found
@@ -806,7 +810,10 @@ const platform: Platform = {
     try {
       await helper.deleteComment(config.repository, comment.id);
     } catch (err) {
-      logger.warn({ err, issue, subject: topic }, 'Error deleting comment');
+      logger.warn(
+        { err, issue: number, subject: topic },
+        'Error deleting comment'
+      );
     }
 
     return null;

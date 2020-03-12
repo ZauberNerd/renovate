@@ -21,6 +21,7 @@ import {
   EnsureIssueResult,
   EnsureIssueConfig,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 import { sanitize } from '../../util/sanitize';
 import { smartTruncate } from '../utils/pr-body';
@@ -882,13 +883,13 @@ export async function ensureComment({
   }
 }
 
-export async function ensureCommentRemoval(
-  prNo: number,
-  topic: string
-): Promise<void> {
+export async function ensureCommentRemoval({
+  number,
+  topic,
+}: EnsureCommentRemovalConfig): Promise<void> {
   try {
-    logger.debug(`Ensuring comment "${topic}" in #${prNo} is removed`);
-    const comments = await getComments(prNo);
+    logger.debug(`Ensuring comment "${topic}" in #${number} is removed`);
+    const comments = await getComments(number);
     let commentId: number;
     comments.forEach((comment) => {
       if (comment.text.startsWith(`### ${topic}\n\n`)) {
@@ -896,7 +897,7 @@ export async function ensureCommentRemoval(
       }
     });
     if (commentId) {
-      await deleteComment(prNo, commentId);
+      await deleteComment(number, commentId);
     }
   } catch (err) /* istanbul ignore next */ {
     logger.warn({ err }, 'Error ensuring comment removal');

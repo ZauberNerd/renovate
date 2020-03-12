@@ -21,6 +21,7 @@ import {
   EnsureCommentConfig,
   EnsureIssueResult,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 import { sanitize } from '../../util/sanitize';
 import { smartTruncate } from '../utils/pr-body';
@@ -571,14 +572,14 @@ export async function ensureComment({
   return true;
 }
 
-export async function ensureCommentRemoval(
-  issueNo: number,
-  topic: string
-): Promise<void> {
-  logger.debug(`ensureCommentRemoval(issueNo, topic)(${issueNo}, ${topic})`);
-  if (issueNo) {
+export async function ensureCommentRemoval({
+  number,
+  topic,
+}: EnsureCommentRemovalConfig): Promise<void> {
+  logger.debug(`ensureCommentRemoval(issueNo, topic)(${number}, ${topic})`);
+  if (number) {
     const azureApiGit = await azureApi.gitApi();
-    const threads = await azureApiGit.getThreads(config.repoId, issueNo);
+    const threads = await azureApiGit.getThreads(config.repoId, number);
     let threadIdFound = null;
 
     threads.forEach((thread) => {
@@ -593,7 +594,7 @@ export async function ensureCommentRemoval(
           status: 4, // close
         },
         config.repoId,
-        issueNo,
+        number,
         threadIdFound
       );
     }

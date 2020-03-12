@@ -1442,12 +1442,23 @@ describe('platform/github', () => {
     });
   });
   describe('ensureCommentRemoval', () => {
-    it('deletes comment if found', async () => {
+    it('deletes comment by topic if found', async () => {
       await initRepo({ repository: 'some/repo', token: 'token' });
       api.get.mockReturnValueOnce({
         body: [{ id: 1234, body: '### some-subject\n\nblablabla' }],
       } as any);
-      await github.ensureCommentRemoval(42, 'some-subject');
+      await github.ensureCommentRemoval({ number: 42, topic: 'some-subject' });
+      expect(api.delete).toHaveBeenCalledTimes(1);
+    });
+    it('deletes comment by content if found', async () => {
+      await initRepo({ repository: 'some/repo', token: 'token' });
+      api.get.mockReturnValueOnce({
+        body: [{ id: 1234, body: 'some-content' }],
+      } as any);
+      await github.ensureCommentRemoval({
+        number: 42,
+        content: 'some-content',
+      });
       expect(api.delete).toHaveBeenCalledTimes(1);
     });
   });

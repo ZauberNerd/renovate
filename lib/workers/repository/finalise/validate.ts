@@ -105,7 +105,7 @@ export async function validatePrs(config: RenovateConfig): Promise<void> {
       } else {
         description = `Renovate config is valid`;
         status = BranchStatus.green;
-        await platform.ensureCommentRemoval(pr.number, topic);
+        await platform.ensureCommentRemoval({ number: pr.number, topic });
       }
       // istanbul ignore else
       if (pr.sourceRepo === config.repository) {

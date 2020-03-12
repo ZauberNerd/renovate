@@ -19,6 +19,7 @@ import {
   EnsureCommentConfig,
   EnsureIssueResult,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 
 import { configFileNames } from '../../config/app-strings';
@@ -1620,18 +1621,29 @@ export async function ensureComment({
   }
 }
 
-export async function ensureCommentRemoval(
-  issueNo: number,
-  topic: string
-): Promise<void> {
-  logger.debug(`Ensuring comment "${topic}" in #${issueNo} is removed`);
-  const comments = await getComments(issueNo);
+export async function ensureCommentRemoval({
+  number,
+  topic = '',
+  content = '',
+}: EnsureCommentRemovalConfig): Promise<void> {
   let commentId: number;
-  comments.forEach((comment) => {
-    if (comment.body.startsWith(`### ${topic}\n\n`)) {
-      commentId = comment.id;
-    }
-  });
+  if (topic) {
+    logger.debug(`Ensuring comment "${topic}" in #${number} is removed`);
+    const comments = await getComments(number);
+    comments.forEach((comment) => {
+      if (comment.body.startsWith(`### ${topic}\n\n`)) {
+        commentId = comment.id;
+      }
+    });
+  } else {
+    logger.debug(`Ensuring content-only comment in #${number} is removed`);
+    const comments = await getComments(number);
+    comments.forEach((comment) => {
+      if (comment.body === content) {
+        commentId = comment.id;
+      }
+    });
+  }
   try {
     if (commentId) {
       await deleteComment(commentId);

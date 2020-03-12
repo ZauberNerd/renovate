@@ -22,6 +22,7 @@ import {
   EnsureCommentConfig,
   EnsureIssueResult,
   CommitFilesConfig,
+  EnsureCommentRemovalConfig,
 } from '../common';
 import { sanitize } from '../../util/sanitize';
 import { smartTruncate } from '../utils/pr-body';
@@ -707,11 +708,11 @@ export function ensureComment({
   });
 }
 
-export function ensureCommentRemoval(
-  prNo: number,
-  topic: string
-): Promise<void> {
-  return comments.ensureCommentRemoval(config, prNo, topic);
+export function ensureCommentRemoval({
+  number,
+  topic,
+}: EnsureCommentRemovalConfig): Promise<void> {
+  return comments.ensureCommentRemoval(config, number, topic);
 }
 
 // Creates PR and returns PR number
